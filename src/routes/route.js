@@ -5,9 +5,9 @@ const express = require("express")
 const router = express.Router();
 
 
-router.post('/POST/register',userController.createUser)
+router.post('/register',userController.createUser)
 
 
-router.post('')
+ router.get('/user/:userId/profile',userController.getUserProfile)
 
 module.exports=router
