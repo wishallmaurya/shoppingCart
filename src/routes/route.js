@@ -5,9 +5,10 @@ const express = require("express")
 const router = express.Router();
 
 
-router.post('/POST/register',userController.createUser)
+router.post('/register',userController.createUser)
 
+router.post('/login',userController.loginUser)
 
-router.post('')
+router.put('/user/:userId/profile',userController.updateUser)
 
 module.exports=router
