@@ -1,10 +1,9 @@
 const userModel = require("../model/userModel");
-
 const mongoose = require("mongoose");
 const aws =require("aws-sdk")
 const jwt = require('jsonwebtoken')
 const { AppConfig } = require('aws-sdk');
-const { isValidName, isValidEmail, isValidPhone, isValidPassword, isValidObjectId, isValidRequestBody, isValid, isValidAddress, } = require("../validator/validator");
+const { isValidName, isValidEmail, isValidPhone, isValidN,isValidPassword, isValidObjectId, isValidRequestBody, isValid, isValidAddress,isValidPincode } = require("../validator/validator");
 const bcrypt = require('bcrypt')
 
 
@@ -55,6 +54,17 @@ const createUser=async function(req,res){
     }
     if (!/^[a-zA-Z ]+$/.test(lname))
         return res.status(400).send({ status: false, message: "Invalid lname." })
+         //validating email using RegEx.
+         if (!isValid(email)) {
+            return res.status(400).send({ status: false, message: "Email id is required" })
+        }
+    if (!isValidEmail(email))
+    return res.status(400).send({ status: false, message: "Invalid Email id." })
+    
+    let emailAlredyPresent = await userModel.findOne({ email: email })
+    if (emailAlredyPresent) {
+        return res.status(400).send({ status: false, message: `Email Already Present` });
+    }
    
     if (!isValid(phone)) {
         return res.status(400).send({ status: false, message: "Phone number is required" })
@@ -63,25 +73,127 @@ const createUser=async function(req,res){
     if (!/^[6-9]{1}[0-9]{9}$/.test(phone))
         return res.status(400).send({ status: false, message: "Invalid Phone number." })
 
-    if (!isValid(email)) {
-        return res.status(400).send({ status: false, message: "Email id is required" })
-    }
-    //validating email using RegEx.
-    if (!isValidEmail(email))
-        return res.status(400).send({ status: false, message: "Invalid Email id." })
+        let phoneAlredyPresent = await userModel.findOne({ phone: phone })
+        if (phoneAlredyPresent) {
+            return res.status(400).send({ status: false, message: `Phone Number Already Present` });
+        }
+
+   
+   
 
     if (!isValid(password)) {
         return res.status(400).send({ status: false, message: "password is required" })
     }
     //setting password's mandatory length in between 8 to 15 characters.
-    // if (!isValidPassword(password)) {
-    //     return res.status(400).send({ status: false, message: "Password criteria not fulfilled." })
-    // }
+    if (!isValidPassword(password)) {
+        return res.status(400).send({ status: false, message: "Password criteria not fulfilled." })
+    }
 
-    // if (!validator.isValidAddress(address)) {
-    //     return res.status(400).send({ status: false, message: "Address cannot be empty if it is mentioned." })
-    // };
+    if (!isValid(address)) {
+        return res.status(400).send({ status: false, message: "Address cannot be empty if it is mentioned." })
+    };
+    console.log("hhhh",address.shipping.street)
+     // ------- Address Validation  --------
+     if (address) {
+        data.address = address;
+        if (address.shipping) {
+          // let { street, city, pincode } = address.shipping;
+          if (!isValid(address.shipping.street)) {
+            return res
+              .status(400)
+              .send({ status: "false", message: "street must be present" });
+          }
+          if (!isValid(address.shipping.city)) {
+            return res
+              .status(400)
+              .send({ status: "false", message: "city must be present" });
+          }
+          let pinn = parseInt(address.shipping.pincode)
+        //   if (!isValidN(pinn)) {
+        //     return res
+        //       .status(400)
+        //       .send({ status: "false", message: "shipping pincode must be IN number" });
+        //   }
+        
+         if(!pinn){
+            return res
+            .status(400)
+            .send({ status: "false", message: "shipping must be present and in digits!!!" });
+       
+         }
 
+         console.log(pinn)
+         
+        //   if (!isValid(address.shipping.pincode)) {
+        //     return res
+        //       .status(400)
+        //       .send({ status: "false", message: "shipping pincode must be present" });
+        //   }
+          if(!isValidName(address.shipping.street)) {
+             return  res
+              .status(400)
+              .send({ status: "false", message: "street should be in alphabetical order" });
+          }
+          if(!isValidName(address.shipping.city)) {
+             return res
+              .status(400)
+              .send({ status: "false", message: "city should be in alphabetical order" });
+          }
+          if(!isValidPincode(pinn)) {
+             return res
+              .status(400)
+              .send({ status: "false", message: "shipping pincode should be valid " });
+         }
+        }
+        if (address.billing) {
+          // let { street, city, pincode } = address.billing;
+          if (!isValid(address.billing.street)) {
+            return res
+              .status(400)
+              .send({ status: "false", message: "street must be present" });
+          }
+          if (!isValid(address.billing.city)) {
+            return res
+              .status(400)
+              .send({ status: "false", message: "city must be present" });
+          }
+         // let pin = parseInt(address.billing.pincode)
+          //address.billing.pincode =pin;
+          let pin = parseInt(address.billing.pincode)
+          if(!pin){
+            return res
+            .status(400)
+            .send({ status: "false", message: "billing must be present and in digits!!!" });
+       
+         }
+
+        //   if (!isValidN(address.billing.pincode)) {
+        //    return res
+        //       .status(400)
+        //       .send({ status: "false", message: "pincode must be present" });
+        //   }
+          if(!isValidName(address.billing.street)) {
+             return res
+              .status(400)
+              .send({ status: "false", message: "street should be in alphabetical order" });
+          }
+          if(!isValidName(address.billing.city)) {
+             return res
+              .status(400)
+              .send({ status: "false", message: "city should be in alphabetical order" });
+          }
+        //   if (!isValidN(address.billing.pincode)) {
+        //     return res
+        //       .status(400)
+        //       .send({ status: "false", message: "billing pincode must be IN number" });
+        //   }
+          if(!isValidPincode(pin)) {
+           return res
+              .status(400)
+              .send({ status: "false", message: "Billing pincode should be valid " });
+          }
+        }
+      }
     let files=req.files
     
     if (!(files&&files.length)) {
@@ -217,3 +329,4 @@ module.exports.createUser=createUser
 module.exports.loginUser = loginUser
 module.exports.updateUser= updateUser
 module.exports.getUserProfile = getUserProfile
+
