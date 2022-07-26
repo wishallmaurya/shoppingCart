@@ -107,7 +107,7 @@ catch (error) {
 const loginUser = async function (req, res) {
 
     try {
-        if (Object.keys(req.body).length<1) return res.status(400).send({ msg: "Insert Data : BAD REQUEST" })
+        if (Object.keys(req.body).length<1) return res.status(400).send({ msg: "Data is required." })
         
         let email = req.body.email;
         if(!email) return res.status(400).send({status:false,msg:"enter email"})
