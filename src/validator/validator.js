@@ -42,15 +42,24 @@ const isValid = function(value) {
     if (typeof value === "string" && value.trim().length === 0) return false
     return true
 }
+const isValidN = function(value) {
+    if (typeof value === 'undefined' || value === null) return false
+    if (typeof value === Number && value.trim().length === 0) return false
+    return true
+}
 
 //ObjectId validation
 const isValidObjectId = function(ObjectId) {
     return mongoose.Types.ObjectId.isValid(ObjectId)
 }
 // pinCode Validation
-const isValidPinCode = function (pinCode) {
-    const pinCodeRegex = /^[1-9][0-9]{6}$/;
-    return pinCodeRegex.test(pinCode);
-  };
-
-module.exports= { isValidName, isValidEmail, isValidPhone, isValidPassword, isValidObjectId, isValidRequestBody, isValid, isValidAddress,isValidPinCode, }
+// const isValidPinCode = function (pinCode) {
+//     const pinCodeRegex = /^[1-9][0-9]{6}$/;
+//     return pinCodeRegex.test(pinCode);
+//   };
+//pincode
+const isValidPincode = (pin) => {
+    if (/^[1-9][0-9]{5}$}*$/.test(pin))
+        return true
+}
+module.exports= { isValidName, isValidEmail, isValidPhone,isValidN, isValidPassword, isValidObjectId, isValidRequestBody, isValid, isValidAddress,isValidPincode, }

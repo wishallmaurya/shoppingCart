@@ -21,6 +21,7 @@ const authenticate = function (req, res, next) {
         return token;
       }
     });
+    
 
     req.tokenId = decodedToken.userId;
     next();

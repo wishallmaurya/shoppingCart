@@ -19,39 +19,6 @@ const userSchema = new mongoose.Schema(
       unique: true,
       trim: true,
 
-  },
-  profileImage: {
-    type:String,
-    require:true,
-    trim:true
-  },                                      // s3 link
-  phone: {
-    type:String,
-    require:true,
-    unique:true,
-    trim:true
-}, 
-  password: {
-    type:String,
-    require:true,
-    trim:true,
-    min: 8 , 
-    max: 15
-  },                          
-  address: {
-    shipping: {
-      street: {
-        type:String,
-        require:true
-      },
-      city: {
-        type:String,
-        require:true
-      },
-      pincode: {
-        type:Number,
-        require:true
-      }
     },
     profileImage: {
       type: String,
@@ -102,9 +69,6 @@ const userSchema = new mongoose.Schema(
       }
     }
   },
-},
   { timestamps: true });
 
-module.exports = mongoose.model('User',userSchema)
-
-
+module.exports = mongoose.model('User', userSchema)
