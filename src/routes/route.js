@@ -10,9 +10,12 @@ router.post('/register',userController.createUser)
 router.post('/login',userController.loginUser)
 
 
- router.get('/user/:userId/profile',userController.getUserProfile)
+ router.get('/user/:userId/profile',middleware.authenticate,userController.getUserProfile)
 
-router.put('/user/:userId/profile',userController.updateUser)
+router.put('/user/:userId/profile',middleware.authenticate,userController.updateUser)
 
+router.all("/*", async function (req, res) {
+    res.status(404).send({ status: false, msg: "Page Not Found!!!" });
+  });
 
 module.exports=router
