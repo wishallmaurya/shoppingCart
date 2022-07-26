@@ -21,7 +21,7 @@ let uploadFile= async ( file) =>{
     var uploadParams= {
         ACL: "public-read",
         Bucket: "classroom-training-bucket",  
-        Key: "abc/" + file.originalname,  
+        Key: "Hercules/User/" + file.originalname,
         Body: file.buffer
     }
 
@@ -123,12 +123,6 @@ const createUser=async function(req,res){
          }
 
          console.log(pinn)
-         
-        //   if (!isValid(address.shipping.pincode)) {
-        //     return res
-        //       .status(400)
-        //       .send({ status: "false", message: "shipping pincode must be present" });
-        //   }
           if(!isValidName(address.shipping.street)) {
              return  res
               .status(400)
@@ -235,7 +229,7 @@ const loginUser = async function (req, res) {
             });
 
         let decPassword = await bcrypt.compare(password,user.password)
-        if(!decPassword) return  res.status(400).json({ error: "Invalid Password" });
+        if(!decPassword) return  res.status(401).send({ error: "Invalid Password" });
 
         let token = jwt.sign(
             {
@@ -254,17 +248,21 @@ const loginUser = async function (req, res) {
 const getUserProfile = async (req, res) => {
 
     try {
-        const userId = req.params.userId
-        const userIdFromToken = req.tokenId 
+        let userId = req.params.userId
+        console.log("controller 11",userId)
+        let userIdFromToken = req.tokenId 
 
 
 
         if (!userId) {
-            return res.status(400).send({ status: false, message: "Invalid userId in params." })
+            return res.status(400).send({ status: false, message: "plz provied userId ." })
+        }
+        if (!isValidObjectId(userId)) {
+            return res.status(400).send({ status: false, message: "enter  valid userId ." })
         }
 
 
-        const findUserProfile = await userModel.findOne({ _id: userId })
+        const findUserProfile = await userModel.findById({ _id: userId })
         if (!findUserProfile) {
             return res.status(400).send({
                 status: false, message: `User doesn't exists by ${userId}`
@@ -280,7 +278,7 @@ const getUserProfile = async (req, res) => {
 
         return res.status(200).send({ status: true, message: "Profile found successfully.", data: findUserProfile })
     } catch (err) {
-        return res.status(500).send({ status: false, msg: error.message })
+        return res.status(500).send({ status: false, msg: err.message })
     }
 }
 
@@ -290,16 +288,33 @@ const getUserProfile = async (req, res) => {
 
 const updateUser = async function(req,res){
     try{
-
-        let{fname,lname,email,password,profileImage,phone}  = req.body
+        let fromRequestBody= req.body
+        let { fname, lname, email, phone, password, address} = fromRequestBody
         let userId = req.params.userId
-        if(!Object.keys(req.body).length<1)  return res.status(400).send({status:false,msg:"Enter what you want to update"})
-        if(fname){
-            if(!isValidName(fname)) return res.status(400).send({status:false,msg:"enter valid firstname"})
+        let userIdFromToken = req.tokenId 
+        if (!isValidObjectId(userId)) {
+            res.status(400).send({ status: false, message: `${userId} is not a valid user id` })
+            return
         }
-        if(lname){
-            if(!isValidName(lname)) return res.status(400).send({status:false,msg:"enter valid lastname"})
+        if (userId != userIdFromToken) {
+            res.status(403).send({ status: false, message: `Unauthorized access! User's info doesn't match` });
+            return
         }
+
+        const findUserProfile = await userModel.findOne({ _id: userId })
+        if (!findUserProfile) {
+            return res.status(400).send({
+                status: false,
+                message: `User doesn't exists by ${userId}`
+            })
+        }
+      
+       
+        if(Object.keys(req.body).length<1&&req.files=== undefined)  return res.status(400).send({status:false,msg:"Enter data to update"})
+        // if(req.files.length==0) return res.status(400).send({status:false,msg:"Enter what you want to update"})
+        if(!isValidName(fname)) return res.status(400).send({status:false,msg:"enter valid firstname"})
+      if(!isValidName(lname)) return res.status(400).send({status:false,msg:"enter valid lastname"})
+        
         if(email){
             let emailCheck = await userModel.findOne({email:email})
             if(emailCheck)  return res.status(400).send({status:false,msg:"email is already in use"})
@@ -307,19 +322,79 @@ const updateUser = async function(req,res){
         }
         
         if(phone){
-            let phoneCheck = await userModel.findOne({phone:phone})
-            if(phoneCheck)  return res.status(400).send({status:false,msg:"phone is already in use"})
-            if(!isValidPhone(phone))  return res.status(400).send({status:false,msg:"enter valid phone number"})
-        }
+           let phoneCheck = await userModel.findOne({phone:phone})
+           if(phoneCheck)  return res.status(400).send({status:false,msg:"phone is already in use"})
+           if(!isValidPhone(phone))  return res.status(400).send({status:false,msg:"enter valid phone number"})
+         }
         if(password){
+            
             if(!isValidPassword(password)) return res.status(400).send({status:false,msg:"enter valid password "})
+            const salt = await bcrypt.genSalt(10)
+            fromRequestBody.password= await bcrypt.hash(password, salt)
         }
- 
-        let updatedUser = await userModel.findOneAndUpdate({ _id: userId }, { $set: req.body }, { new: true })
+         // ------- Address Validation  --------
+     if (address) {
+        fromRequestBody.address = address;
+        if (address.shipping) {
+          
+          let pinn = parseInt(address.shipping.pincode)
+       
+          if(!isValidName(address.shipping.street)) {
+             return  res
+              .status(400)
+              .send({ status: "false", message: "street should be in alphabetical order" });
+          }
+          if(!isValidName(address.shipping.city)) {
+             return res
+              .status(400)
+              .send({ status: "false", message: "city should be in alphabetical order" });
+          }
+          if((pinn)) {
+            if((!isValidPincode(pinn)) )
+             return res
+              .status(400)
+              .send({ status: "false", message: "shipping pincode should be valid " });
+         }
+        }
+        if (address.billing) {
+         
+          let pin = parseInt(address.billing.pincode)
+        
+          if(!isValidName(address.billing.street)) {
+             return res
+              .status(400)
+              .send({ status: "false", message: "street should be in alphabetical order" });
+          }
+          if(!isValidName(address.billing.city)) {
+             return res
+              .status(400)
+              .send({ status: "false", message: "city should be in alphabetical order" });
+          }
+          if(!isValidPincode(pin)) {
+           return res
+              .status(400)
+              .send({ status: "false", message: "Billing pincode should be valid " });
+          }
+        }
+    //   }
+    let files=req.files
+     
+    if (files.length>0) {
+       //return res.status(400).send({ status: false, message: " Please Provide The Profile coverpage" });
+       const uploadedprofileImage = await uploadFile(files[0])
+
+   fromRequestBody.profileImage = uploadedprofileImage
+
+   }
+   
+    
+     }
+      let updatedUser = await userModel.findOneAndUpdate({ _id: userId }, { $set: req.body }, { new: true })
         res.status(200).send({status:true,msg:"User profile updated",data:updatedUser})
     
 
     }catch(error){
+        console.log(error);
         res.status(500).send({ msg: error.message })
     }
 }

@@ -19,10 +19,9 @@ const isValidEmail = function(email) {
 
 //Mobile Validation
 const isValidPhone = function(phone) {
-    const mobileRegex = /^[6-9]{1}[0-9]{9}$/.test(phone)
-    return mobileRegex.test(mobile)
+    const mobileRegex = /^[6-9]{1}[0-9]{9}$/;
+    return mobileRegex.test(phone)
 }
-
 //password Validation
 const isValidPassword = function(password) {
     const passwordRegex = /^[a-zA-Z0-9@$!%*#?&]{8,15}$/
