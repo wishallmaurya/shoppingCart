@@ -25,7 +25,7 @@ const isValidPhone = function(phone) {
 
 //password Validation
 const isValidPassword = function(password) {
-    const passwordRegex = /^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[@$!%?&])[A-Za-z\d@$!%?&]{8,15}$/
+    const passwordRegex = /^[a-zA-Z0-9@$!%*#?&]{8,15}$/
     return passwordRegex.test(password)
 }
 
@@ -47,5 +47,10 @@ const isValid = function(value) {
 const isValidObjectId = function(ObjectId) {
     return mongoose.Types.ObjectId.isValid(ObjectId)
 }
+// pinCode Validation
+const isValidPinCode = function (pinCode) {
+    const pinCodeRegex = /^[1-9][0-9]{6}$/;
+    return pinCodeRegex.test(pinCode);
+  };
 
-module.exports= { isValidName, isValidEmail, isValidPhone, isValidPassword, isValidObjectId, isValidRequestBody, isValid, isValidAddress, }
+module.exports= { isValidName, isValidEmail, isValidPhone, isValidPassword, isValidObjectId, isValidRequestBody, isValid, isValidAddress,isValidPinCode, }
