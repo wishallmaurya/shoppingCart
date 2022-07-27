@@ -193,8 +193,7 @@ const createUser=async function(req,res){
     if (!(files&&files.length)) {
         return res.status(400).send({ status: false, message: " Please Provide The Profile coverpage" });}
     const uploadedprofileImage = await uploadFile(files[0])
-
-    data.profileImage = uploadedprofileImage
+ data.profileImage = uploadedprofileImage
 
     const salt = await bcrypt.genSalt(10);
     
@@ -349,7 +348,7 @@ const updateUser = async function(req,res){
               .status(400)
               .send({ status: "false", message: "city should be in alphabetical order" });
           }
-          if((pinn)) {
+          if(pinn){
             if((!isValidPincode(pinn)) )
              return res
               .status(400)

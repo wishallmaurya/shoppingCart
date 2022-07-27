@@ -11,6 +11,12 @@ const isValidName = function(name) {
     return nameRegex.test(name)
 }
 
+// Price Validation
+const isValidPrice = function(price) {
+    const priceRegex = /^[0-9]+$/
+    return priceRegex.test(price)
+}
+
 //Email Validation 
 const isValidEmail = function(email) {
     const emailRegex = /^[a-z0-9][a-z0-9-_\.]+@([a-z]|[a-z0-9]?[a-z0-9-]+[a-z0-9])\.[a-z0-9]{2,10}(?:\.[a-z]{2,10})?$/
@@ -61,4 +67,9 @@ const isValidPincode = (pin) => {
     if (/^[1-9][0-9]{5}$}*$/.test(pin))
         return true
 }
-module.exports= { isValidName, isValidEmail, isValidPhone,isValidN, isValidPassword, isValidObjectId, isValidRequestBody, isValid, isValidAddress,isValidPincode, }
+//Installment Validation 
+const isValidInstallment = function isInteger(value) {
+    if(value < 0) return false
+     if(value % 1 == 0 ) return true
+}
+module.exports= { isValidName, isValidEmail, isValidPhone,isValidN, isValidPassword, isValidObjectId, isValidRequestBody, isValid, isValidAddress,isValidPincode,isValidInstallment,isValidPrice }
