@@ -74,7 +74,7 @@ const createProduct = async function (req, res) {
 
         // const isValidSize = function(availableSizes) {
             let size=availableSizes.split(',').map(x=>x.trim())
-            console.log(size)
+            // console.log(size)
             for(let i=0;i<size.length;i++){
             let sizeCheck =["S", "XS","M","X", "L","XXL", "XL"].includes(size[i])
              if(!sizeCheck)return res.status(400).send({status:false,message:"Enter Size from Enum only."})
@@ -114,8 +114,9 @@ const getProducts = async function(req,res){
         filter.availableSizes = size
        }
        if(name){
-        filter.title = name
+        filter.title = {$regex : name}
        }
+       
        if(!priceGreaterThan){
           priceGreaterThan = 0
        }
