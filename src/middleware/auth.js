@@ -7,7 +7,7 @@ const bookModel = require("../model/userModel");
 const authenticate = function (req, res, next) {
   try {
     let token = req.headers.authorization;
-    console.log(token)
+    // console.log(token)
     if (!token)
       return res
         .status(400)
