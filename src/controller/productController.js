@@ -117,15 +117,6 @@ const getProducts = async function(req,res){
 
 
         let {size,name,priceGreaterThan,priceLessThan,priceSort}  = req.query
-    //    let a=  size.split(',').map(x=>x.trim())
-    //         console.log(a)
-    //         for(let i=0;i<a.length;i++){
-    //         let sizeCheck =["S", "XS","M","X", "L","XXL", "XL"].includes(a[i])
-    //          if(!sizeCheck)return res.status(400).send({status:false,message:"Enter Size from Enum only."})
-    //         //  console.log(availableSizes)
-    //         }
-        //    req.body.availableSizes=size
-
         
         if(priceSort){
         if(priceSort != 1 && priceSort != -1 ) return res.send({status:false,message:"priceSort has to be 1 or -1"})
@@ -327,7 +318,9 @@ const deleteProduct = async function (req, res){
         res.status(500).send({ status: true, Message: err.message })
     }
 }
+
 module.exports.getProducts = getProducts
 module.exports.getProductById = getProductById
 module.exports.deleteProduct = deleteProduct
 module.exports.updateProduct= updateProduct
+module.exports.createProduct = createProduct

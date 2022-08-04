@@ -19,10 +19,6 @@ router.get('/products/:productId',productController.getProductById)
 router.put('/products/:productId',productController.updateProduct)
 router.delete('/products/:productId',productController.deleteProduct)
 
-router.post('/users/:userId/cart',middleware.authenticate,cartController.createCart)
-router.put('/users/:userId/cart',middleware.authenticate, cartController.updateCart)
-router.get('/users/:userId/cart',middleware.authenticate,cartController.getCart)
-router.delete('/users/:userId/cart',cartController.deleteCart)
 
 
 router.post('/users/:userId/cart',middleware.authenticate,cartController.createCart)
@@ -41,5 +37,3 @@ router.all("/*", async function (req, res) {
   });
 
 module.exports=router
-
-//hello
