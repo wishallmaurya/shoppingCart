@@ -1,8 +1,8 @@
 const mongoose = require('mongoose')
 
 //Body validation
-const isValidRequestBody = function(requestBody) {
-    return Object.keys(requestBody).length > 0; // it checks, is there any key is available or not in request body
+const isValidRequestBody = function(data) {
+    return Object.keys(data).length > 0; // it checks, is there any key  available or not in request body
 };
 
 //Name Validation
@@ -12,10 +12,11 @@ const isValidName = function(name) {
 }
 
 // Price Validation
-const isValidPrice = function(price) {
-    const priceRegex = /^[0-9]+$/
-    return priceRegex.test(price)
+const isValidPrice = (price) => {
+    if (/^(?:[1-9]\d*|0)?(?:\.\d+)?$/.test(price)&&price>0)
+        return true
 }
+
 
 //Email Validation 
 const isValidEmail = function(email) {
