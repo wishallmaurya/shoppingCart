@@ -1,8 +1,6 @@
 const productModel = require("../model/productModel");
 const mongoose = require("mongoose");
 const aws = require("aws-sdk")
-const jwt = require('jsonwebtoken')
-
 const { isValidObjectId, isValidRequestBody, isValid, isValidPrice, isValidInstallment} = require("../validator/validator");
 
 
@@ -38,7 +36,7 @@ let uploadFile = async (file) => {
 const createProduct = async function (req, res) {
     try{
     let data = req.body
-    let { title, description, price, currencyId,availableSizes } = data
+    let { title, description, price, currencyId,availableSizes,style,isFreeShipping } = data
 
     if (Object.keys(req.body).length < 1) return res.status(400).send({ msg: "Data is required." })
 
@@ -49,7 +47,6 @@ const createProduct = async function (req, res) {
     
 
     let productTitle = await productModel.findOne({ title: title })
-    console.log(productTitle)
     if (productTitle) {
         return res.status(400).send({ status: false, message: 'Title already Present' });
     }
@@ -73,7 +70,20 @@ const createProduct = async function (req, res) {
     }
     
     data.currencyFormat="₹" 
-    
+
+    if (!isValid(style)) { 
+        return res.status(400).send({ status: false, message: "style must be present." })
+    }
+    if(isFreeShipping || isFreeShipping == "") {
+        if (!isValid(isFreeShipping)) {
+          return res.status(400).send({status: false, msg: "isFreeShipping value should be there"})
+        }
+        if(!["true", "false"].includes(isFreeShipping)){
+            return res.status(400).send({status: false, message: "isFreeShipping value should be true and false only"});
+
+        }
+        
+      }
         let files=req.files
     
     if (!(files&&files.length)) {
@@ -118,13 +128,19 @@ const getProducts = async function(req,res){
 
         let {size,name,priceGreaterThan,priceLessThan,priceSort}  = req.query
         
-        if(priceSort){
+        if(priceSort||priceSort==""){
+            if (!isValid(priceSort)) {
+                return res.status(400).send({status: false, msg: "priceSort value should be there"})
+              }
         if(priceSort != 1 && priceSort != -1 ) return res.send({status:false,message:"priceSort has to be 1 or -1"})
         }
         
        let filter ={isDeleted:false}
               
-       if(size){
+       if(size||size==""){
+        if (!isValid(size)) {
+            return res.status(400).send({status: false, msg: "Size value should be there"})
+          }
         let a = size.split(',').map(x=>x.trim())
         
         for(let i=0;i<a.length;i++){
@@ -137,14 +153,24 @@ const getProducts = async function(req,res){
         
        }
 
-       if(name){
+       if(name||name==""){
+        if (!isValid(name)) {
+            return res.status(400).send({status: false, msg: "Name value should be there"})
+          }
         filter.title = {$regex : name}
        }
        
-       if(!priceGreaterThan){
+       if(!priceGreaterThan||priceGreaterThan==""){  
+        if (priceGreaterThan=="") {
+            return res.status(400).send({status: false, msg: "priceGreaterThan value should be there"})
+          }    
           priceGreaterThan = 0
        }
-       if(!priceLessThan){
+
+       if(!priceLessThan||priceLessThan==""){
+        if (priceLessThan=="") {
+            return res.status(400).send({status: false, msg: "priceLessThan value should be there"})
+          }
         priceLessThan =  999999
        }
 
@@ -219,6 +245,9 @@ let updateProduct = async function(req,res){
         if(description){
             toUpdate.description = description
         }
+        if (price=='') {
+            return res.status(400).send({ status: false, message: "Price must be present." })
+        }
         if(price){
         if (!isValidPrice(price)) {
             return res.status(400).send({ status: false, message: "Price must be in number & greater than 0." })
@@ -235,12 +264,18 @@ let updateProduct = async function(req,res){
             }
             toUpdate.currencyId = currencyId
         }
-        if(isFreeShipping){
-            if (((isFreeShipping === true) || (isFreeShipping == false))) {
-                return res.status(400).send({ status: false, message: 'isFreeShipping should be a boolean value' })
+        if(isFreeShipping || isFreeShipping == "") {
+            if (!isValid(isFreeShipping)) {
+              return res.status(400).send({status: false, msg: "isFreeShipping value should be there"})
+            }
+            if(!["true", "false"].includes(isFreeShipping)){
+                return res.status(400).send({status: false, message: "isFreeShipping value should be true and false only"});
+    
             }
             toUpdate.isFreeShipping = isFreeShipping
-        }
+            
+          }
+       
         let files = req.files;
 
         if ((files && files.length > 0)) {

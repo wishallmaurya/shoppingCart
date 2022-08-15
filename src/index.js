@@ -1,16 +1,13 @@
 const express=require('express')
 const multer=require('multer')
-const aws=require('aws-sdk')
 const mongoose=require('mongoose')
 const route = require('./routes/route')
-const bodyParser = require('body-parser')
 
 const app = express()
-app.use(bodyParser.json())
+app.use(express.json())
 
 
-mongoose.connect("mongodb+srv://musharrafansari:XY5t9CKinqT75evR@cluster0.xsylin5.mongodb.net/group11Database", {
-    useNewUrlParser: true
+mongoose.connect("mongodb+srv://wishall:vishal@atlascluster.p9u9uvd.mongodb.net/cartDatabase?retryWrites=true&w=majority", {
 })
 .then(()=>console.log("mongoDB is connected"))
 .catch((error)=>console.log(error))
@@ -20,6 +17,6 @@ mongoose.connect("mongodb+srv://musharrafansari:XY5t9CKinqT75evR@cluster0.xsylin
 app.use( multer().any())
 app.use('/',route)
 
-app.listen(process.env.PORT || 3000,function(){
-    console.log("express app is running on PORT " + (process.env.PORT || 3000))
+app.listen(3000,function(){
+    console.log("express app is running on PORT " + (3000))
 })

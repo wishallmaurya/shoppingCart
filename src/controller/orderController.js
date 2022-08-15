@@ -1,11 +1,6 @@
 const cartModel = require("../model/cartModel");
 const userModel = require("../model/userModel");
 const orderModel = require("../model/orderModel");
-const productModel = require("../model/productModel");
-
-const mongoose = require("mongoose");
-const jwt = require('jsonwebtoken')
-
 const { isValidObjectId,} = require("../validator/validator");
 
 const createOrder = async function (req, res) {
@@ -20,14 +15,14 @@ const createOrder = async function (req, res) {
             return res.status(403).send({ status: false, message: `Unauthorized access! User's info doesn't match` });
 
         }
-        let { cartId, status, cancellable } = req.body
+        let { cartId, cancellable } = req.body
 
-        if (Object.keys(req.body) < 1) return res.status(400).send({ status: false, msg: "Data is required." })
+        if (Object.keys(req.body).length < 1) return res.status(400).send({ status: false, msg: "Data is required." })
         if (!isValidObjectId(cartId)) {
             return res.status(400).send({ status: false, message: `${cartId} is not a valid cart id` })
 
         }
-
+ 
         let cart = await cartModel.findById(cartId)
         if (!cart) return res.status(400).send({ status: false, msg: "No cart with given cartId." })
         let userIdFromCart = cart.userId
@@ -53,7 +48,7 @@ const createOrder = async function (req, res) {
 
 
         let createdOrder = await orderModel.create(order)
-        let cartUpdate = await cartModel.findOneAndUpdate({ _id: cartId }, { items: [], totalPrice: 0, totalItems: 0 })
+        await cartModel.findOneAndUpdate({ _id: cartId }, { items: [], totalPrice: 0, totalItems: 0 })
         res.status(201).send({ status: true, data: createdOrder })
 
     } catch (err) {
@@ -81,8 +76,13 @@ const updateOrder = async function (req, res) {
         if (!order) return res.status(404).send({ status: false, msg: "no order with given orderId." })
         if (userIdP != order.userId) return res.status(403).send({ status: false, message: `Unauthorized access! User not allowed to cancel order` });
         if (order.cancellable == false) return res.status(400).send({ status: false, msg: "not cancellable order" })
-        if (!["completed", "canceled"].includes(status)) return res.status(400).send({ status: false, msg: 'enter status from this ["pending", "completed", "canceled"]' })
-
+        if (!["completed", "canceled"].includes(status)) return res.status(400).send({ status: false, msg: 'enter status from this "pending", "completed", "canceled"' })
+        if(order.status=="completed"){
+            return res.status(400).send({ status: false, msg: "order all ready completed"})
+        }
+        if(order.status=="canceled"){
+            return res.status(400).send({ status: false, msg: "order all ready canceled"})
+        }
         let updatedOrder = await orderModel.findOneAndUpdate({ _id: orderId }, { status: status }, { new: true })
         res.status(200).send({ status: true, data: updatedOrder })
 
